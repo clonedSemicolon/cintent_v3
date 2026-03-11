@@ -1,0 +1,27 @@
+name: "Setup cintent_v3"
+description: "Install cintent_v3 deterministic call graph tracer — drop-in replacement for JavidDitty/setup-cintent"
+
+inputs:
+  nonblocking:
+    description: "Ignored (kept for compatibility with setup-cintent)"
+    default: "false"
+
+runs:
+  using: "composite"
+  steps:
+    - name: Install cintent_v3
+      shell: bash
+      run: pip install "${{ github.action_path }}"
+
+    - name: Setup tracing
+      shell: bash
+      run: |
+        python -m cintent_v3 generate-conftest .
+        # Inject -p conftest_cintent_v3 so pytest auto-loads the tracer
+        echo "PYTEST_ADDOPTS=-p conftest_cintent_v3 ${PYTEST_ADDOPTS:-}" >> "$GITHUB_ENV"
+        # Artifact env vars
+        echo "CINTENT_V3_LOGS=cintent_v3_callgraph.json cintent_v3_metadata.json cintent_v3_stats.json" >> "$GITHUB_ENV"
+        echo "CINTENT_V3_ARTIFACT_NAME=cintent_v3-logs" >> "$GITHUB_ENV"
+        # Backward-compatible env vars (match setup-cintent naming)
+        echo "CINTENT_LOGS=cintent_v3_callgraph.json cintent_v3_metadata.json cintent_v3_stats.json" >> "$GITHUB_ENV"
+        echo "CINTENT_ARTIFACT_NAME=cintent_v3-logs" >> "$GITHUB_ENV"
