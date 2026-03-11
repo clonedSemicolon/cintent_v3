@@ -9,16 +9,23 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - name: Install cintent_v3
-      shell: bash
-      run: pip install "${{ github.action_path }}"
-
-    - name: Enable tracing
+    - name: Setup cintent_v3
       shell: bash
       run: |
+        # 1. Set env vars FIRST (always succeeds, even if pip install fails)
         mkdir -p "${{ github.workspace }}/cintent_v3_logs"
         echo "CINTENT_V3_ENABLED=1" >> "$GITHUB_ENV"
         echo "CINTENT_V3_PROJECT_ROOT=${{ github.workspace }}" >> "$GITHUB_ENV"
         echo "CINTENT_V3_OUTPUT=${{ github.workspace }}/cintent_v3_logs" >> "$GITHUB_ENV"
         echo "CINTENT_LOGS=${{ github.workspace }}/cintent_v3_logs" >> "$GITHUB_ENV"
         echo "CINTENT_ARTIFACT_NAME=cintent_v3-logs" >> "$GITHUB_ENV"
+
+        # 2. Make cintent_v3 importable via PYTHONPATH (no pip install required)
+        echo "PYTHONPATH=${{ github.action_path }}/src:${PYTHONPATH:-}" >> "$GITHUB_ENV"
+
+        # 3. Tell pytest to auto-load the plugin
+        echo "PYTEST_ADDOPTS=${PYTEST_ADDOPTS:-} -p cintent_v3.auto_plugin" >> "$GITHUB_ENV"
+
+        # 4. Try pip install (may fail on Python < 3.10 — that's OK, PYTHONPATH handles it)
+        pip install "${{ github.action_path }}" 2>/dev/null \
+          || echo "[cintent_v3] pip install skipped (Python $(python --version 2>&1)) — using PYTHONPATH fallback"

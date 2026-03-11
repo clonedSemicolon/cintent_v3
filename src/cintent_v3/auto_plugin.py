@@ -1,26 +1,18 @@
 """Auto-loading pytest plugin for cintent_v3.
 
-This module is registered as a pytest11 entry point. When the package is
-installed, pytest auto-discovers it. Tracing activates only when
-CINTENT_V3_ENABLED=1 is set in the environment (set by action.yml).
+This module is loaded via PYTEST_ADDOPTS=-p cintent_v3.auto_plugin or
+via pytest11 entry point. Tracing activates only when CINTENT_V3_ENABLED=1.
 
-Output files are written to the working directory (or CINTENT_V3_OUTPUT).
+Gracefully skips on Python < 3.10 (cintent_v3 core requires 3.10+).
 """
 
-from __future__ import annotations
-
-import json
 import os
-import subprocess
 import sys
-import time
-
-from cintent_v3.callgraph import export_call_graph
-from cintent_v3.tracer import CallGraphTracer
 
 _ENABLED = os.environ.get("CINTENT_V3_ENABLED", "0") == "1"
-_tracer: CallGraphTracer | None = None
-_start_time: float | None = None
+_SUPPORTED = sys.version_info >= (3, 10)
+_tracer = None
+_start_time = None
 
 
 def pytest_configure(config):
@@ -28,6 +20,12 @@ def pytest_configure(config):
     global _tracer, _start_time
     if not _ENABLED:
         return
+    if not _SUPPORTED:
+        print(f"[cintent_v3] Skipping: requires Python >= 3.10 (current: {sys.version})")
+        return
+
+    import time
+    from cintent_v3.tracer import CallGraphTracer
 
     project_root = os.environ.get("CINTENT_V3_PROJECT_ROOT", os.getcwd())
     _tracer = CallGraphTracer(
@@ -44,6 +42,11 @@ def pytest_sessionfinish(session, exitstatus):
     global _tracer, _start_time
     if _tracer is None:
         return
+
+    import json
+    import subprocess
+    import time
+    from cintent_v3.callgraph import export_call_graph
 
     _tracer.stop()
     elapsed = time.time() - _start_time if _start_time else 0
