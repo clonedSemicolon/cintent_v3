@@ -17,11 +17,18 @@ runs:
       shell: bash
       run: |
         python -m cintent_v3 generate-conftest .
+        echo "conftest_cintent_v3.py generated at: $(pwd)"
+        ls -la conftest_cintent_v3.py
+
         # Inject -p conftest_cintent_v3 so pytest auto-loads the tracer
         echo "PYTEST_ADDOPTS=-p conftest_cintent_v3 ${PYTEST_ADDOPTS:-}" >> "$GITHUB_ENV"
-        # Artifact env vars
-        echo "CINTENT_V3_LOGS=cintent_v3_callgraph.json cintent_v3_metadata.json cintent_v3_stats.json" >> "$GITHUB_ENV"
-        echo "CINTENT_V3_ARTIFACT_NAME=cintent_v3-logs" >> "$GITHUB_ENV"
-        # Backward-compatible env vars (match setup-cintent naming)
-        echo "CINTENT_LOGS=cintent_v3_callgraph.json cintent_v3_metadata.json cintent_v3_stats.json" >> "$GITHUB_ENV"
+
+        # Multiline env var for upload-artifact (newline-separated paths)
+        {
+          echo "CINTENT_LOGS<<EOF"
+          echo "cintent_v3_callgraph.json"
+          echo "cintent_v3_metadata.json"
+          echo "cintent_v3_stats.json"
+          echo "EOF"
+        } >> "$GITHUB_ENV"
         echo "CINTENT_ARTIFACT_NAME=cintent_v3-logs" >> "$GITHUB_ENV"
