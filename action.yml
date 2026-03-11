@@ -1,13 +1,13 @@
-﻿name: "Setup cintent_v3"
-description: "Deterministic call graph tracer for CI - drop-in replacement for JavidDitty/setup-cintent"
+name: Setup cintent_v3
+description: Deterministic call graph tracer for CI
 
 inputs:
   nonblocking:
-    description: "Ignored (kept for compatibility with setup-cintent)"
+    description: Ignored (kept for compatibility with setup-cintent)
     default: "false"
 
 runs:
-  using: "composite"
+  using: composite
   steps:
     - name: Setup cintent_v3
       shell: bash
@@ -20,18 +20,9 @@ runs:
         echo "CINTENT_V3_ENABLED=1" >> "$GITHUB_ENV"
         echo "CINTENT_V3_OUTPUT=$CINTENT_LOGS" >> "$GITHUB_ENV"
         echo "CINTENT_V3_PROJECT_ROOT=${{ github.workspace }}" >> "$GITHUB_ENV"
-
         if pip install "${{ github.action_path }}" --quiet 2>/dev/null; then
-          echo "[cintent_v3] Installed. Plugin will auto-load via pytest11 entry point."
+          echo "[cintent_v3] Installed via pip. Plugin auto-loads via pytest11."
         else
-          echo "[cintent_v3] pip install skipped (Python < 3.10). Writing skip metadata."
-          python -c "
-import sys, os, json, time
-d = os.environ.get('CINTENT_V3_OUTPUT', '.')
-os.makedirs(d, exist_ok=True)
-m = {'tool':'cintent_v3','skipped':True,'reason':'Python {}.{} < 3.10'.format(*sys.version_info[:2]),'python_version':sys.version,'platform':sys.platform,'timestamp':time.strftime('%Y-%m-%dT%H:%M:%SZ',time.gmtime())}
-[m.update({k.lower():v}) for k in ['GITHUB_REPOSITORY','GITHUB_SHA','GITHUB_REF','GITHUB_RUN_ID','GITHUB_JOB','GITHUB_WORKFLOW'] if (v:=os.environ.get(k))]
-open(os.path.join(d,'cintent_v3_metadata.json'),'w').write(__import__('json').dumps(m,indent=2))
-print('[cintent_v3] Skip metadata written.')
-"
+          echo "[cintent_v3] pip install skipped. Writing skip metadata."
+          echo "{\"tool\":\"cintent_v3\",\"skipped\":true}" > "$CINTENT_LOGS/cintent_v3_metadata.json"
         fi
