@@ -1,8 +1,7 @@
 # Publish cintent_v3 to a private GitHub Packages Python registry
 # Usage:
 # 1) In the cintent_v3 repository, place as .github/workflows/publish_private_github_packages.yaml
-# 2) Replace <OWNER> with your GitHub org/user
-# 3) Push a tag like v0.1.0 (or run workflow_dispatch)
+# 2) Push a tag like v0.1.0 (or run workflow_dispatch)
 
 name: Publish cintent_v3 (Private)
 
@@ -40,5 +39,5 @@ jobs:
         run: |
           python -m pip install --upgrade twine
           python -m twine upload \
-            --repository-url https://upload.pypi.pkg.github.com/<OWNER>/ \
+            --repository-url https://upload.pypi.pkg.github.com/clonedSemicolon/ \
             dist/*

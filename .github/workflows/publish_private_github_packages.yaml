@@ -1,9 +1,4 @@
 # Publish cintent_v3 to a private GitHub Packages Python registry
-# This workflow:
-# 1) Builds the cintent_v3 package
-# 2) Publishes to GitHub Packages (private registry)
-# 3) Triggers on tags matching v* (e.g., v0.1.0, v0.1.1)
-# 4) Or manually via workflow_dispatch
 
 name: Publish cintent_v3 (Private)
 

@@ -1,0 +1,11 @@
+name: cintent_v3
+
+on: [push, pull_request]
+
+jobs:
+  trace:
+    uses: clonedSemicolon/cintent_v3/.github/workflows/reusable_trace.yaml@master
+    with:
+      tests-dir: tests/        # ← only change this if your test folder is different
+    secrets:
+      GH_PACKAGES_TOKEN: ${{ secrets.GH_PACKAGES_TOKEN }}
