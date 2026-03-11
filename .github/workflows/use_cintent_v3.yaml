@@ -1,0 +1,47 @@
+name: Use Private cintent_v3
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  trace:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: read
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install project dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e .
+          pip install pytest
+
+      - name: Install private cintent_v3
+        env:
+          GH_PACKAGES_TOKEN: ${{ secrets.GH_PACKAGES_TOKEN }}
+        run: |
+          pip install \
+            --extra-index-url https://__token__:${GH_PACKAGES_TOKEN}@pip.pkg.github.com/clonedSemicolon \
+            cintent_v3==0.1.0
+
+      - name: Collect call graph
+        run: python -m cintent_v3 ci collect . -o cintent_v3_artifact.zip
+        continue-on-error: true
+
+      - name: Upload cintent_v3 artifacts
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: cintent_v3-logs
+          path: |
+            cintent_v3_artifact.zip
+            cintent_v3_callgraph.json
+            cintent_v3_metadata.json
+            cintent_v3_stats.json
