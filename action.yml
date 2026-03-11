@@ -16,7 +16,12 @@ runs:
       if: ${{ runner.os == 'Linux' }}
       shell: bash
       run: |
-        CINTENT_ARTIFACT_NAME="$(date +%s%N)-cintent_v3_logs"
+        # Build a unique artifact name from matrix context to avoid conflicts
+        MATRIX_ID=$(echo '${{ toJson(matrix) }}' | tr -d '{}" \n' | tr ':,' '-' | sed 's/^-//;s/-$//')
+        if [ -z "$MATRIX_ID" ]; then
+          MATRIX_ID="default"
+        fi
+        CINTENT_ARTIFACT_NAME="${{ github.job }}-${MATRIX_ID}-cintent_v3_logs"
         echo "CINTENT_ARTIFACT_NAME=$CINTENT_ARTIFACT_NAME" >> $GITHUB_ENV
 
         CINTENT_BASH=/home/runner/cintent_v3/bin/bash
@@ -49,10 +54,21 @@ runs:
       if: ${{ runner.os == 'Linux' }}
       shell: bash
       run: |
-        if pip install "${{ github.action_path }}" --quiet 2>/dev/null; then
-          echo "[cintent_v3] Installed. Pytest plugin auto-loads via pytest11 entry point."
+        echo "[cintent_v3] Python version: $(python --version 2>&1)"
+        PYVER=$(python -c "import sys; print(sys.version_info[:2])")
+        echo "[cintent_v3] Python tuple: $PYVER"
+
+        if pip install "${{ github.action_path }}" 2>&1; then
+          echo "[cintent_v3] pip install succeeded."
+          # Verify the plugin is actually loadable
+          if python -c "import cintent_v3.auto_plugin; print('[cintent_v3] Plugin module verified.')" 2>&1; then
+            echo "[cintent_v3] Pytest plugin auto-loads via pytest11 entry point."
+          else
+            echo "[cintent_v3] WARNING: Plugin module failed to import."
+            echo '{"tool":"cintent_v3","skipped":true,"reason":"import_failed"}' > ${{ env.CINTENT_LOGS }}/cintent_v3_metadata.json
+          fi
         else
-          echo "[cintent_v3] pip install skipped (requires Python >= 3.10)."
+          echo "[cintent_v3] pip install failed (requires Python >= 3.10)."
           echo '{"tool":"cintent_v3","skipped":true,"reason":"pip_install_failed"}' > ${{ env.CINTENT_LOGS }}/cintent_v3_metadata.json
         fi
 
@@ -103,7 +119,9 @@ runs:
           # Start the bash script
           echo "start_time = $(date +%s)" >> $metadata_log
           /bin/bash "$@"
+          BASH_EXIT=$?
           echo "end_time = $(date +%s)" >> $metadata_log
+          echo "exit_code = $BASH_EXIT" >> $metadata_log
 
           # (Re-)Apply the wrapper(s)
           export PATH="${{ env.CINTENT_BIN }}:$PATH"
@@ -112,6 +130,8 @@ runs:
           # Unset tracer indicator
           unset CINTENT_IS_TRACING_BASH
           echo "CINTENT_IS_TRACING_BASH=" >> $GITHUB_ENV
+
+          exit $BASH_EXIT
         else
           # (Re-)Apply the wrapper(s)
           export PATH="${{ env.CINTENT_BIN }}:$PATH"
@@ -138,7 +158,11 @@ runs:
       if: ${{ runner.os != 'Linux' }}
       shell: bash
       run: |
-        CINTENT_ARTIFACT_NAME="$(date +%s)-cintent_v3_logs"
+        MATRIX_ID=$(echo '${{ toJson(matrix) }}' | tr -d '{}" \n' | tr ':,' '-' | sed 's/^-//;s/-$//')
+        if [ -z "$MATRIX_ID" ]; then
+          MATRIX_ID="default"
+        fi
+        CINTENT_ARTIFACT_NAME="${{ github.job }}-${MATRIX_ID}-cintent_v3_logs"
         echo "CINTENT_ARTIFACT_NAME=$CINTENT_ARTIFACT_NAME" >> $GITHUB_ENV
         CINTENT_LOGS="${{ github.workspace }}/cintent_v3_logs"
         echo "CINTENT_LOGS=$CINTENT_LOGS" >> $GITHUB_ENV
