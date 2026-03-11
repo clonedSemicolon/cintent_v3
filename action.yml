@@ -1,5 +1,5 @@
-name: "Setup cintent_v3"
-description: "Deterministic call graph tracer for CI — drop-in replacement for JavidDitty/setup-cintent"
+ï»¿name: "Setup cintent_v3"
+description: "Deterministic call graph tracer for CI - drop-in replacement for JavidDitty/setup-cintent"
 
 inputs:
   nonblocking:
@@ -12,44 +12,26 @@ runs:
     - name: Setup cintent_v3
       shell: bash
       run: |
-        # 1. Set env vars FIRST — always, any Python version, any OS
         CINTENT_ARTIFACT_NAME="$(date +%s%N)-cintent_v3_logs"
         CINTENT_LOGS="${{ github.workspace }}/cintent_v3_logs"
         mkdir -p "$CINTENT_LOGS"
         echo "CINTENT_ARTIFACT_NAME=$CINTENT_ARTIFACT_NAME" >> "$GITHUB_ENV"
-        echo "CINTENT_LOGS=$CINTENT_LOGS"                   >> "$GITHUB_ENV"
-        echo "CINTENT_V3_ENABLED=1"                         >> "$GITHUB_ENV"
-        echo "CINTENT_V3_OUTPUT=$CINTENT_LOGS"              >> "$GITHUB_ENV"
+        echo "CINTENT_LOGS=$CINTENT_LOGS" >> "$GITHUB_ENV"
+        echo "CINTENT_V3_ENABLED=1" >> "$GITHUB_ENV"
+        echo "CINTENT_V3_OUTPUT=$CINTENT_LOGS" >> "$GITHUB_ENV"
         echo "CINTENT_V3_PROJECT_ROOT=${{ github.workspace }}" >> "$GITHUB_ENV"
 
-        # 2. Install cintent_v3; pip fails silently on Python < 3.10
-        pip install "${{ github.action_path }}" --quiet 2>/dev/null \
-          && INSTALLED=1 || INSTALLED=0
-
-        if [[ "$INSTALLED" == "1" ]]; then
-          echo "[cintent_v3] Installed."
-          # entry point (pytest11) auto-loads the plugin — do NOT also add PYTEST_ADDOPTS
-          # or the plugin loads twice, conflicting sys.setprofile calls produce no output.
+        if pip install "${{ github.action_path }}" --quiet 2>/dev/null; then
+          echo "[cintent_v3] Installed. Plugin will auto-load via pytest11 entry point."
         else
-          echo "[cintent_v3] pip install failed (Python < 3.10). Writing skip metadata."
-          python - << 'PYEOF'
+          echo "[cintent_v3] pip install skipped (Python < 3.10). Writing skip metadata."
+          python -c "
 import sys, os, json, time
-output_dir = os.environ.get("CINTENT_V3_OUTPUT", ".")
-os.makedirs(output_dir, exist_ok=True)
-meta = {
-    "tool": "cintent_v3",
-    "skipped": True,
-    "reason": "Python {}.{} < 3.10 — tracing not supported".format(*sys.version_info[:2]),
-    "python_version": sys.version,
-    "platform": sys.platform,
-    "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
-}
-for k in ["GITHUB_REPOSITORY","GITHUB_SHA","GITHUB_REF","GITHUB_RUN_ID","GITHUB_JOB","GITHUB_WORKFLOW"]:
-    v = os.environ.get(k)
-    if v:
-        meta[k.lower()] = v
-with open(os.path.join(output_dir, "cintent_v3_metadata.json"), "w") as f:
-    json.dump(meta, f, indent=2)
-print("[cintent_v3] Skip metadata written for Python {}.{}".format(*sys.version_info[:2]))
-PYEOF
+d = os.environ.get('CINTENT_V3_OUTPUT', '.')
+os.makedirs(d, exist_ok=True)
+m = {'tool':'cintent_v3','skipped':True,'reason':'Python {}.{} < 3.10'.format(*sys.version_info[:2]),'python_version':sys.version,'platform':sys.platform,'timestamp':time.strftime('%Y-%m-%dT%H:%M:%SZ',time.gmtime())}
+[m.update({k.lower():v}) for k in ['GITHUB_REPOSITORY','GITHUB_SHA','GITHUB_REF','GITHUB_RUN_ID','GITHUB_JOB','GITHUB_WORKFLOW'] if (v:=os.environ.get(k))]
+open(os.path.join(d,'cintent_v3_metadata.json'),'w').write(__import__('json').dumps(m,indent=2))
+print('[cintent_v3] Skip metadata written.')
+"
         fi
