@@ -1,0 +1,45 @@
+# Publish cintent_v3 to a private GitHub Packages Python registry
+# This workflow:
+# 1) Builds the cintent_v3 package
+# 2) Publishes to GitHub Packages (private registry)
+# 3) Triggers on tags matching v* (e.g., v0.1.0, v0.1.1)
+# 4) Or manually via workflow_dispatch
+
+name: Publish cintent_v3 (Private)
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Build package
+        run: |
+          python -m pip install --upgrade pip build
+          python -m build
+
+      - name: Upload to GitHub Packages
+        env:
+          TWINE_USERNAME: ${{ github.actor }}
+          TWINE_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          python -m pip install --upgrade twine
+          python -m twine upload \
+            --repository-url https://upload.pypi.pkg.github.com/clonedSemicolon/ \
+            dist/*
