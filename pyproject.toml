@@ -35,6 +35,9 @@ test = [
 [project.scripts]
 cintent_v3 = "cintent_v3.__main__:main"
 
+[project.entry-points."pytest11"]
+cintent_v3 = "cintent_v3.auto_plugin"
+
 [build-system]
 requires = ["setuptools>=42", "wheel"]
 build-backend = "setuptools.build_meta"

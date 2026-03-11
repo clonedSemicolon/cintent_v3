@@ -13,17 +13,13 @@ runs:
       shell: bash
       run: pip install "${{ github.action_path }}"
 
-    - name: Setup tracing
+    - name: Enable tracing
       shell: bash
       run: |
-        python -m cintent_v3 generate-conftest .
-        echo "conftest_cintent_v3.py generated at: $(pwd)"
-        ls -la conftest_cintent_v3.py
-
-        # Inject -p conftest_cintent_v3 so pytest auto-loads the tracer
-        echo "PYTEST_ADDOPTS=-p conftest_cintent_v3 ${PYTEST_ADDOPTS:-}" >> "$GITHUB_ENV"
-
-        # Multiline env var for upload-artifact (newline-separated paths)
+        echo "CINTENT_V3_ENABLED=1" >> "$GITHUB_ENV"
+        echo "CINTENT_V3_PROJECT_ROOT=${{ github.workspace }}" >> "$GITHUB_ENV"
+        echo "CINTENT_V3_OUTPUT=${{ github.workspace }}" >> "$GITHUB_ENV"
+        # Artifact env vars (multiline for upload-artifact)
         {
           echo "CINTENT_LOGS<<EOF"
           echo "cintent_v3_callgraph.json"
