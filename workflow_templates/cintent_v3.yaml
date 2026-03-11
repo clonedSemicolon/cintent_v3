@@ -1,0 +1,67 @@
+# cintent_v3: Deterministic Call Graph Tracing for CI
+#
+# This workflow runs your test suite with deterministic call graph tracing
+# using sys.setprofile(). Unlike sampling-based profilers (pyinstrument),
+# this captures EVERY function call with zero sampling gap.
+#
+# Setup:
+#   1. Copy this file to .github/workflows/cintent_v3.yaml in your repository
+#   2. Adjust the Python version matrix and install steps as needed
+#   3. Push to trigger the workflow
+#
+# Evaluate locally after downloading the artifact:
+#   python -m cintent_v3 ci evaluate cintent_v3_artifact.zip -g ground_truth.json
+#
+# Or generate this automatically:
+#   python -m cintent_v3 ci setup /path/to/project --workflow-file cintent_v3.yaml
+
+name: cintent_v3 Call Graph
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  trace:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.10", "3.11", "3.12", "3.13"]
+      fail-fast: false
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -e .
+        pip install pytest
+
+    - name: Install cintent_v3
+      run: pip install cintent_v3
+      # Alternative: install from source
+      # run: pip install git+https://github.com/YOUR_USERNAME/cintent_v3.git
+
+    - name: Run tests with call graph tracing
+      run: python -m cintent_v3 ci collect . -o cintent_v3_artifact.zip
+      continue-on-error: true  # Still upload artifact even if tests fail
+
+    - name: Upload call graph artifact
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: cintent_v3-logs-py${{ matrix.python-version }}
+        path: |
+          cintent_v3_artifact.zip
+          cintent_v3_callgraph.json
+          cintent_v3_metadata.json
+          cintent_v3_stats.json
+        retention-days: 30

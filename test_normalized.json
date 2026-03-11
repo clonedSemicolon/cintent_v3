@@ -1,0 +1,613 @@
+{
+    "grab.base": [
+        "builtins.set",
+        "typing.TypeVar"
+    ],
+    "grab.base.BaseClient.__init__": [
+        "dict.values",
+        "grab.base.BaseTransport.resolve_entity",
+        "grab.extensions.CookiesExtension.reset",
+        "grab.extensions.RedirectExtension.reset"
+    ],
+    "grab.base.BaseClient.clone": [
+        "copy.deepcopy"
+    ],
+    "grab.base.BaseClient.request": [
+        "grab.base.BaseRequest.create_from_mapping",
+        "grab.base.Retry",
+        "grab.client.HttpClient.process_request_result",
+        "grab.extensions.CookiesExtension.process_request_pre",
+        "grab.extensions.RedirectExtension.process_init_retry",
+        "grab.extensions.RedirectExtension.process_retry",
+        "grab.transport.Urllib3Transport.request",
+        "grab.transport.Urllib3Transport.reset",
+        "grab.transport.Urllib3Transport.wrap_transport_error",
+        "typing.cast"
+    ],
+    "grab.base.BaseExtension.__set_name__": [
+        "dict.items",
+        "list.append"
+    ],
+    "grab.base.BaseRequest.create_from_mapping": [
+        "grab.request.HttpRequest"
+    ],
+    "grab.base.BaseTransport.resolve_entity": [
+        "None",
+        "builtins.isinstance",
+        "builtins.issubclass",
+        "grab.transport.Urllib3Transport",
+        "tests.test_util_types.ResolveTransportEntityTestCase.test_resolve_transport_entity_class.SuperTransport",
+        "tests.test_util_types.ResolveTransportEntityTestCase.test_resolve_transport_entity_default.SuperTransport"
+    ],
+    "grab.client": [
+        "grab.extensions.RedirectExtension"
+    ],
+    "grab.client.HttpClient.process_request_result": [
+        "grab.extensions.CookiesExtension.process_response_post",
+        "grab.transport.Urllib3Transport.prepare_response"
+    ],
+    "grab.client.HttpClient.request": [
+        "builtins.isinstance",
+        "grab.base.BaseClient.request"
+    ],
+    "grab.client.request": [
+        "grab.client.HttpClient.request",
+        "grab.util.types.resolve_entity",
+        "tests.test_grab_functions.RequestFuncTestCase.test_request_custom_grab.DummyHttpClient.request"
+    ],
+    "grab.document": [
+        "_thread._local",
+        "builtins.object",
+        "logging.getLogger"
+    ],
+    "grab.document.Document.__init__": [
+        "builtins.ValueError",
+        "builtins.isinstance",
+        "email.message.Message",
+        "grab.document.Document.process_encoding"
+    ],
+    "grab.document.Document._build_dom": [
+        "builtins.hasattr",
+        "dict.setdefault",
+        "grab.document.Document.wrap_io",
+        "lxml.etree._ElementTree.getroot",
+        "lxml.etree.parse",
+        "lxml.html.HTMLParser"
+    ],
+    "grab.document.Document.body": [
+        "grab.errors.GrabMisuseError"
+    ],
+    "grab.document.Document.build_fields_to_remove": [
+        "builtins.set"
+    ],
+    "grab.document.Document.build_html_tree": [
+        "builtins.isinstance",
+        "grab.document.Document._build_dom",
+        "grab.document.Document.unicode_body",
+        "str.encode"
+    ],
+    "grab.document.Document.build_xml_tree": [
+        "grab.document.Document.unicode_body",
+        "str.encode"
+    ],
+    "grab.document.Document.choose_form": [
+        "builtins.IndexError",
+        "dict.get",
+        "grab.document.Document.select",
+        "grab.errors.GrabMisuseError",
+        "selection.base.Selector.node",
+        "str.format",
+        "typing.cast"
+    ],
+    "grab.document.Document.choose_form_by_element": [
+        "grab.document.Document.select"
+    ],
+    "grab.document.Document.form": [
+        "builtins.enumerate",
+        "builtins.len",
+        "builtins.list",
+        "builtins.sorted",
+        "grab.document.Document.choose_form",
+        "typing.cast"
+    ],
+    "grab.document.Document.form_fields": [
+        "builtins.dict",
+        "builtins.getattr",
+        "grab.document.Document.build_fields_to_remove",
+        "grab.document.Document.process_form_fields"
+    ],
+    "grab.document.Document.get_cached_form": [
+        "builtins.ValueError",
+        "builtins.isinstance"
+    ],
+    "grab.document.Document.get_form_request": [
+        "grab.document.Document.form_fields"
+    ],
+    "grab.document.Document.json": [
+        "bytes.decode",
+        "json.loads"
+    ],
+    "grab.document.Document.process_encoding": [
+        "email.message.Message.get",
+        "grab.document.Document.get_body_chunk",
+        "unicodec.main.detect_content_encoding",
+        "unicodec.normalization.normalize_encoding_name"
+    ],
+    "grab.document.Document.process_form_fields": [
+        "builtins.isinstance",
+        "builtins.len",
+        "builtins.list",
+        "collections.abc.MutableSet.pop",
+        "dict.items"
+    ],
+    "grab.document.Document.rex_assert": [
+        "grab.document.Document.rex_search"
+    ],
+    "grab.document.Document.rex_search": [
+        "Pattern.search",
+        "builtins.IndexError",
+        "builtins.isinstance",
+        "grab.document.Document.unicode_body",
+        "re.compile"
+    ],
+    "grab.document.Document.rex_text": [
+        "Match.group",
+        "grab.document.Document.rex_search"
+    ],
+    "grab.document.Document.save": [
+        "BufferedWriter.write",
+        "genericpath.exists",
+        "io.open",
+        "posixpath.split"
+    ],
+    "grab.document.Document.select": [
+        "selection.backend_lxml.LxmlNodeSelector.select",
+        "selection.backend_lxml.XpathSelector"
+    ],
+    "grab.document.Document.set_input": [
+        "grab.document.Document.choose_form_by_element"
+    ],
+    "grab.document.Document.set_input_by_id": [
+        "grab.document.Document.choose_form_by_element"
+    ],
+    "grab.document.Document.set_input_by_xpath": [
+        "grab.document.Document.select"
+    ],
+    "grab.document.Document.text_assert": [
+        "builtins.IndexError",
+        "builtins.str",
+        "grab.document.Document.text_search",
+        "str.format"
+    ],
+    "grab.document.Document.text_assert_any": [
+        "builtins.IndexError",
+        "builtins.map",
+        "grab.document.Document.text_search",
+        "str.join"
+    ],
+    "grab.document.Document.text_search": [
+        "builtins.isinstance",
+        "grab.document.Document.unicode_body"
+    ],
+    "grab.document.Document.tree": [
+        "grab.document.Document.build_html_tree",
+        "grab.document.Document.build_xml_tree"
+    ],
+    "grab.document.Document.unicode_body": [
+        "unicodec.main.decode_content"
+    ],
+    "grab.document.Document.wrap_io": [
+        "_io.BytesIO",
+        "builtins.isinstance"
+    ],
+    "grab.document.normalize_pairs": [
+        "builtins.isinstance",
+        "builtins.list",
+        "dict.items"
+    ],
+    "grab.errors.OriginalExceptionGrabError.__init__": [
+        "Exception.__init__",
+        "builtins.len"
+    ],
+    "grab.extensions.CookiesExtension.__init__": [
+        "http.cookiejar.CookieJar"
+    ],
+    "grab.extensions.CookiesExtension.clear": [
+        "http.cookiejar.CookieJar.clear"
+    ],
+    "grab.extensions.CookiesExtension.process_request_pre": [
+        "dict.get",
+        "grab.extensions.CookiesExtension.update",
+        "grab.util.cookies.build_cookie_header"
+    ],
+    "grab.extensions.CookiesExtension.process_response_post": [
+        "http.cookiejar.CookieJar.set_cookie"
+    ],
+    "grab.extensions.CookiesExtension.reset": [
+        "grab.extensions.CookiesExtension.clear"
+    ],
+    "grab.extensions.CookiesExtension.update": [
+        "dict.items",
+        "grab.util.cookies.create_cookie",
+        "http.cookiejar.CookieJar.set_cookie",
+        "urllib.parse.urlsplit"
+    ],
+    "grab.extensions.RedirectExtension.__init__": [
+        "http.cookiejar.CookieJar"
+    ],
+    "grab.extensions.RedirectExtension.find_redirect_url": [
+        "typing.cast"
+    ],
+    "grab.extensions.RedirectExtension.process_retry": [
+        "grab.extensions.RedirectExtension.find_redirect_url",
+        "urllib.parse.urljoin"
+    ],
+    "grab.grab": [
+        "grab.extensions.CookiesExtension"
+    ],
+    "grab.request.HttpRequest.__init__": [
+        "grab.request.HttpRequest._process_timeout_param"
+    ],
+    "grab.request.HttpRequest._process_timeout_param": [
+        "builtins.float",
+        "builtins.isinstance",
+        "grab.util.timeout.Timeout"
+    ],
+    "grab.request.HttpRequest.compile_request_data": [
+        "builtins.len",
+        "copy.copy",
+        "grab.util.structures.merge_with_dict",
+        "str.encode",
+        "typing.cast",
+        "urllib.parse.urlencode",
+        "urllib3.filepost.encode_multipart_formdata"
+    ],
+    "grab.spider.base": [
+        "logging.getLogger",
+        "random.SystemRandom"
+    ],
+    "grab.spider.base.Spider.__init__": [
+        "builtins.int",
+        "dict.get",
+        "grab.spider.base.Spider.task_generator",
+        "grab.spider.queue_backend.memory.MemoryTaskQueue",
+        "grab.spider.service.network.NetworkServiceThreaded",
+        "grab.spider.service.parser.ParserService",
+        "grab.spider.service.task_dispatcher.TaskDispatcherService",
+        "grab.spider.service.task_generator.TaskGeneratorService",
+        "procstat.stat.Stat",
+        "queue.Queue",
+        "tests.test_spider.BasicSpiderTestCase.testz_generator.TestSpider.task_generator",
+        "tests.test_spider_error.SpiderErrorTestCase.test_generator_with_invalid_url.SomeSpider.task_generator",
+        "tests.test_spider_error.SpiderErrorTestCase.test_redirect_with_invalid_url.TestSpider.task_generator",
+        "tests.test_spider_misc.MiscTest.test_null_grab_bug.SimpleSpider.task_generator"
+    ],
+    "grab.spider.base.Spider.add_task": [
+        "grab.spider.base.Spider.generate_task_priority",
+        "grab.spider.queue_backend.memory.MemoryTaskQueue.put",
+        "str.startswith"
+    ],
+    "grab.spider.base.Spider.generate_task_priority": [
+        "random.Random.randint"
+    ],
+    "grab.spider.base.Spider.load_proxylist": [
+        "builtins.isinstance"
+    ],
+    "grab.spider.base.Spider.run": [
+        "grab.spider.base.Spider.prepare",
+        "grab.spider.base.Spider.process_initial_urls",
+        "grab.spider.base.Spider.shutdown_services",
+        "grab.spider.service.base.BaseService.start",
+        "grab.spider.service.task_dispatcher.TaskDispatcherService.start",
+        "procstat.stat.Stat.shutdown",
+        "tests.test_spider.BasicSpiderTestCase.test_fallback_handler_by_default_name.TestSpider.prepare",
+        "tests.test_spider.BasicSpiderTestCase.test_fallback_handler_by_fallback_name.TestSpider.prepare",
+        "tests.test_spider.BasicSpiderTestCase.test_handler_result_invalid.TestSpider.prepare",
+        "tests.test_spider.BasicSpiderTestCase.test_handler_result_none.TestSpider.prepare",
+        "time.time"
+    ],
+    "grab.spider.base.Spider.shutdown_services": [
+        "grab.spider.base.Spider.shutdown",
+        "grab.spider.queue_backend.memory.MemoryTaskQueue.clear",
+        "grab.spider.queue_backend.memory.MemoryTaskQueue.close",
+        "grab.spider.service.base.BaseService.is_alive",
+        "grab.spider.service.base.BaseService.resume",
+        "grab.spider.service.base.BaseService.stop",
+        "logging.Logger.debug",
+        "logging.Logger.error",
+        "procstat.stat.Stat.render_moment",
+        "time.sleep",
+        "time.time"
+    ],
+    "grab.spider.base.Spider.srv_process_service_result": [
+        "builtins.isinstance",
+        "grab.spider.base.Spider.add_task"
+    ],
+    "grab.spider.queue_backend.memory.MemoryTaskQueue.__init__": [
+        "grab.spider.queue_backend.base.BaseTaskQueue.__init__",
+        "queue.PriorityQueue"
+    ],
+    "grab.spider.queue_backend.memory.MemoryTaskQueue.clear": [
+        "contextlib.suppress",
+        "queue.Queue.get"
+    ],
+    "grab.spider.queue_backend.memory.MemoryTaskQueue.put": [
+        "queue.Queue.put"
+    ],
+    "grab.spider.queue_backend.memory.MemoryTaskQueue.size": [
+        "builtins.len",
+        "queue.Queue.qsize"
+    ],
+    "grab.spider.service.base": [
+        "logging.getLogger"
+    ],
+    "grab.spider.service.base.BaseService.create_worker": [
+        "grab.spider.service.base.ServiceWorker"
+    ],
+    "grab.spider.service.base.BaseService.is_alive": [
+        "grab.spider.service.base.BaseService.iterate_workers",
+        "grab.spider.service.base.ServiceWorker.is_alive"
+    ],
+    "grab.spider.service.base.BaseService.iterate_workers": [
+        "builtins.isinstance"
+    ],
+    "grab.spider.service.base.BaseService.register_workers": [
+        "builtins.list"
+    ],
+    "grab.spider.service.base.BaseService.resume": [
+        "grab.spider.service.base.BaseService.iterate_workers",
+        "grab.spider.service.base.ServiceWorker.resume"
+    ],
+    "grab.spider.service.base.BaseService.start": [
+        "grab.spider.service.base.BaseService.iterate_workers",
+        "grab.spider.service.base.ServiceWorker.start"
+    ],
+    "grab.spider.service.base.BaseService.stop": [
+        "grab.spider.service.base.BaseService.iterate_workers",
+        "grab.spider.service.base.ServiceWorker.stop"
+    ],
+    "grab.spider.service.base.ServiceWorker.__init__": [
+        "grab.spider.service.base.ServiceWorker.build_thread_name",
+        "grab.spider.service.base.ServiceWorker.worker_callback_wrapper",
+        "threading.Event",
+        "threading.Thread"
+    ],
+    "grab.spider.service.base.ServiceWorker.build_thread_name": [
+        "builtins.hasattr"
+    ],
+    "grab.spider.service.base.ServiceWorker.is_alive": [
+        "threading.Thread.is_alive"
+    ],
+    "grab.spider.service.base.ServiceWorker.process_pause_signal": [
+        "threading.Event.is_set"
+    ],
+    "grab.spider.service.base.ServiceWorker.resume": [
+        "threading.Event.clear",
+        "threading.Event.set"
+    ],
+    "grab.spider.service.base.ServiceWorker.start": [
+        "threading.Thread.start"
+    ],
+    "grab.spider.service.base.ServiceWorker.stop": [
+        "threading.Event.set"
+    ],
+    "grab.spider.service.base.ServiceWorker.wrapper": [
+        "grab.spider.service.parser.ParserService.supervisor_callback",
+        "grab.spider.service.parser.ParserService.worker_callback",
+        "grab.spider.service.task_dispatcher.TaskDispatcherService.worker_callback",
+        "grab.spider.service.task_generator.TaskGeneratorService.worker_callback"
+    ],
+    "grab.spider.service.network.NetworkServiceThreaded.__init__": [
+        "builtins.range",
+        "grab.spider.service.base.BaseService.__init__",
+        "grab.spider.service.base.BaseService.create_worker",
+        "grab.spider.service.base.BaseService.register_workers",
+        "list.append"
+    ],
+    "grab.spider.service.parser.ParserService.__init__": [
+        "builtins.range",
+        "grab.spider.service.base.BaseService.__init__",
+        "grab.spider.service.base.BaseService.create_worker",
+        "grab.spider.service.base.BaseService.register_workers",
+        "list.append",
+        "queue.Queue"
+    ],
+    "grab.spider.service.parser.ParserService.check_pool_health": [
+        "grab.spider.service.base.BaseService.create_worker",
+        "grab.spider.service.base.ServiceWorker.is_alive",
+        "grab.spider.service.base.ServiceWorker.start",
+        "list.append",
+        "list.remove",
+        "procstat.stat.Stat.inc"
+    ],
+    "grab.spider.service.parser.ParserService.supervisor_callback": [
+        "grab.spider.service.base.ServiceWorker.process_pause_signal",
+        "grab.spider.service.parser.ParserService.check_pool_health",
+        "threading.Event.is_set",
+        "time.sleep"
+    ],
+    "grab.spider.service.parser.ParserService.worker_callback": [
+        "grab.spider.service.base.ServiceWorker.process_pause_signal",
+        "queue.Queue.get",
+        "threading.Event.is_set"
+    ],
+    "grab.spider.service.task_dispatcher.TaskDispatcherService.__init__": [
+        "grab.spider.service.base.BaseService.__init__",
+        "grab.spider.service.base.BaseService.create_worker",
+        "grab.spider.service.base.BaseService.register_workers",
+        "queue.Queue"
+    ],
+    "grab.spider.service.task_dispatcher.TaskDispatcherService.start": [
+        "grab.spider.service.base.ServiceWorker.start"
+    ],
+    "grab.spider.service.task_dispatcher.TaskDispatcherService.worker_callback": [
+        "grab.spider.base.Spider.srv_process_service_result",
+        "grab.spider.service.base.ServiceWorker.process_pause_signal",
+        "queue.Queue.get",
+        "threading.Event.is_set"
+    ],
+    "grab.spider.service.task_generator.TaskGeneratorService.__init__": [
+        "builtins.max",
+        "grab.spider.service.base.BaseService.__init__",
+        "grab.spider.service.base.BaseService.create_worker",
+        "grab.spider.service.base.BaseService.register_workers"
+    ],
+    "grab.spider.service.task_generator.TaskGeneratorService.worker_callback": [
+        "builtins.max",
+        "builtins.next",
+        "builtins.range",
+        "grab.spider.base.Spider.get_task_queue",
+        "grab.spider.queue_backend.memory.MemoryTaskQueue.size",
+        "grab.spider.service.base.ServiceWorker.process_pause_signal",
+        "queue.Queue.put",
+        "queue.Queue.qsize",
+        "threading.Event.is_set"
+    ],
+    "grab.spider.task.Task.__eq__": [
+        "builtins.isinstance"
+    ],
+    "grab.spider.task.Task.__init__": [
+        "builtins.isinstance",
+        "builtins.setattr",
+        "dict.items",
+        "grab.errors.GrabMisuseError",
+        "grab.request.HttpRequest",
+        "grab.spider.errors.SpiderMisuseError",
+        "grab.spider.task.Task.check_init_kwargs",
+        "grab.spider.task.Task.process_delay_option"
+    ],
+    "grab.spider.task.Task.clone": [
+        "copy.deepcopy",
+        "dict.items",
+        "grab.spider.task.Task",
+        "grab.spider.task.Task.process_delay_option"
+    ],
+    "grab.transport": [
+        "logging.getLogger"
+    ],
+    "grab.transport.Urllib3Transport.__getstate__": [
+        "dict.copy"
+    ],
+    "grab.transport.Urllib3Transport.__init__": [
+        "grab.transport.Urllib3Transport.build_pool",
+        "grab.transport.Urllib3Transport.reset",
+        "logging.Logger.setLevel",
+        "logging.getLogger",
+        "object.__init__"
+    ],
+    "grab.transport.Urllib3Transport.__setstate__": [
+        "builtins.setattr",
+        "dict.items",
+        "grab.transport.Urllib3Transport.build_pool"
+    ],
+    "grab.transport.Urllib3Transport.build_pool": [
+        "certifi.core.where",
+        "urllib3.poolmanager.PoolManager"
+    ],
+    "grab.transport.Urllib3Transport.get_response_header_items": [
+        "typing.cast",
+        "urllib3._collections.HTTPHeaderDict.items"
+    ],
+    "grab.transport.Urllib3Transport.log_request": [
+        "logging.Logger.debug",
+        "str.format"
+    ],
+    "grab.transport.Urllib3Transport.prepare_response": [
+        "bytes.decode",
+        "email.message.Message",
+        "grab.document.Document",
+        "grab.transport.Urllib3Transport.get_response_header_items",
+        "grab.transport.Urllib3Transport.read_with_timeout",
+        "grab.util.cookies.extract_response_cookies",
+        "str.encode",
+        "tests.test_grab_response_body_processing.CustomDocument",
+        "urllib3.response.HTTPResponse.get_redirect_location",
+        "urllib3.response.HTTPResponse.release_conn"
+    ],
+    "grab.transport.Urllib3Transport.read_with_timeout": [
+        "builtins.len",
+        "bytes.join",
+        "list.append",
+        "time.time",
+        "urllib3.response.HTTPResponse.read"
+    ],
+    "grab.transport.Urllib3Transport.request": [
+        "builtins.str",
+        "grab.errors.GrabInvalidResponse",
+        "grab.request.HttpRequest.compile_request_data",
+        "grab.transport.Urllib3Transport.log_request",
+        "grab.transport.Urllib3Transport.select_pool_for_request",
+        "grab.transport.Urllib3Transport.wrap_transport_error",
+        "time.time",
+        "urllib3.poolmanager.PoolManager.urlopen",
+        "urllib3.poolmanager.ProxyManager.urlopen",
+        "urllib3.util.retry.Retry",
+        "urllib3.util.timeout.Timeout"
+    ],
+    "grab.transport.Urllib3Transport.select_pool_for_request": [
+        "certifi.core.where",
+        "urllib3.poolmanager.ProxyManager"
+    ],
+    "grab.transport.Urllib3Transport.wrap_transport_error": [
+        "grab.errors.GrabConnectionError",
+        "grab.errors.GrabTimeoutError"
+    ],
+    "grab.util.cookies.MockRequest.__init__": [
+        "urllib.parse.urlparse"
+    ],
+    "grab.util.cookies.MockRequest.get_full_url": [
+        "dict.get"
+    ],
+    "grab.util.cookies.MockRequest.get_host": [
+        "urllib.parse.urlparse"
+    ],
+    "grab.util.cookies.MockRequest.get_origin_req_host": [
+        "grab.util.cookies.MockRequest.get_host"
+    ],
+    "grab.util.cookies.MockRequest.origin_req_host": [
+        "grab.util.cookies.MockRequest.get_origin_req_host"
+    ],
+    "grab.util.cookies.MockRequest.unverifiable": [
+        "grab.util.cookies.MockRequest.is_unverifiable"
+    ],
+    "grab.util.cookies.build_cookie_header": [
+        "builtins.dict",
+        "dict.get",
+        "grab.util.cookies.MockRequest",
+        "grab.util.cookies.MockRequest.get_new_headers",
+        "http.cookiejar.CookieJar.add_cookie_header",
+        "typing.cast"
+    ],
+    "grab.util.cookies.create_cookie": [
+        "http.cookiejar.Cookie",
+        "str.startswith"
+    ],
+    "grab.util.cookies.extract_response_cookies": [
+        "builtins.dict",
+        "builtins.list",
+        "grab.util.cookies.MockRequest",
+        "grab.util.cookies.MockResponse",
+        "http.cookiejar.CookieJar",
+        "http.cookiejar.CookieJar.extract_cookies",
+        "typing.cast"
+    ],
+    "grab.util.structures.merge_with_dict": [
+        "dict.items"
+    ],
+    "grab.util.timeout": [
+        "builtins.object"
+    ],
+    "grab.util.types": [
+        "typing.TypeVar"
+    ],
+    "grab.util.types.resolve_entity": [
+        "builtins.isinstance",
+        "builtins.issubclass",
+        "grab.client.HttpClient",
+        "inspect.isclass",
+        "tests.test_grab_functions.RequestFuncTestCase.test_request_custom_grab.DummyHttpClient",
+        "tests.test_util_types.ResolveHttpClientEntityTestCase.test_resolve_entity_class.SuperHttpClient",
+        "tests.test_util_types.ResolveHttpClientEntityTestCase.test_resolve_entity_default.SuperHttpClient",
+        "typing.cast"
+    ]
+}

@@ -1,0 +1,51 @@
+# cintent_v3: Drop-in replacement for CIntent (pyinstrument-based) workflow
+#
+# Replaces the JavidDitty/setup-cintent GitHub Action with cintent_v3's
+# deterministic sys.setprofile() tracer. No sampling gap — captures every call.
+#
+# Changes from the original cintent.yaml:
+#   - Removed: JavidDitty/setup-cintent action (pyinstrument sampling)
+#   - Added:   cintent_v3 with deterministic tracing
+#   - Output:  cintent_v3_callgraph.json instead of speedscope.json
+#
+# Evaluate locally:
+#   python -m cintent_v3 ci evaluate cintent_v3_artifact.zip -g dynapyt.json
+
+name: Custom
+
+on: workflow_dispatch
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Set up Python 3.8
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.8"
+
+      - name: Install dependencies
+        run: |
+          pip install . && pip install -r requirements_dev.txt && pip install pytest
+
+      # CINTENT_V3 >> Deterministic call graph tracing (replaces pyinstrument)
+      - name: Install cintent_v3
+        run: pip install cintent_v3
+
+      - name: Run tests with call graph tracing
+        run: python -m cintent_v3 ci collect . -t tests/ -o cintent_v3_artifact.zip -- --import-mode=importlib
+        continue-on-error: true
+
+      - name: Upload cintent_v3 Artifacts
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: cintent_v3-logs
+          path: |
+            cintent_v3_artifact.zip
+            cintent_v3_callgraph.json
+            cintent_v3_metadata.json
+            cintent_v3_stats.json
