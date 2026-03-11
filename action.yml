@@ -1,5 +1,5 @@
 name: "Setup cintent_v3"
-description: "Install cintent_v3 deterministic call graph tracer — drop-in replacement for JavidDitty/setup-cintent"
+description: "Deterministic call graph tracer for CI — drop-in replacement for JavidDitty/setup-cintent"
 
 inputs:
   nonblocking:
@@ -16,15 +16,9 @@ runs:
     - name: Enable tracing
       shell: bash
       run: |
+        mkdir -p "${{ github.workspace }}/cintent_v3_logs"
         echo "CINTENT_V3_ENABLED=1" >> "$GITHUB_ENV"
         echo "CINTENT_V3_PROJECT_ROOT=${{ github.workspace }}" >> "$GITHUB_ENV"
-        echo "CINTENT_V3_OUTPUT=${{ github.workspace }}" >> "$GITHUB_ENV"
-        # Artifact env vars (multiline for upload-artifact)
-        {
-          echo "CINTENT_LOGS<<EOF"
-          echo "cintent_v3_callgraph.json"
-          echo "cintent_v3_metadata.json"
-          echo "cintent_v3_stats.json"
-          echo "EOF"
-        } >> "$GITHUB_ENV"
+        echo "CINTENT_V3_OUTPUT=${{ github.workspace }}/cintent_v3_logs" >> "$GITHUB_ENV"
+        echo "CINTENT_LOGS=${{ github.workspace }}/cintent_v3_logs" >> "$GITHUB_ENV"
         echo "CINTENT_ARTIFACT_NAME=cintent_v3-logs" >> "$GITHUB_ENV"
