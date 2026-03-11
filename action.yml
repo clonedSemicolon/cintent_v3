@@ -12,25 +12,48 @@ runs:
     - name: Setup cintent_v3
       shell: bash
       run: |
-        # 1. Set env vars FIRST (always succeeds, even if pip install fails)
+        # 1. Set env vars FIRST — always, regardless of Python version or OS
         CINTENT_ARTIFACT_NAME="$(date +%s%N)-cintent_v3_logs"
         CINTENT_LOGS="${{ github.workspace }}/cintent_v3_logs"
         mkdir -p "$CINTENT_LOGS"
 
-        echo "CINTENT_V3_ENABLED=1" >> "$GITHUB_ENV"
+        echo "CINTENT_V3_ENABLED=1"                       >> "$GITHUB_ENV"
         echo "CINTENT_V3_PROJECT_ROOT=${{ github.workspace }}" >> "$GITHUB_ENV"
-        echo "CINTENT_V3_OUTPUT=$CINTENT_LOGS" >> "$GITHUB_ENV"
-        echo "CINTENT_LOGS=$CINTENT_LOGS" >> "$GITHUB_ENV"
+        echo "CINTENT_V3_OUTPUT=$CINTENT_LOGS"            >> "$GITHUB_ENV"
+        echo "CINTENT_LOGS=$CINTENT_LOGS"                 >> "$GITHUB_ENV"
         echo "CINTENT_ARTIFACT_NAME=$CINTENT_ARTIFACT_NAME" >> "$GITHUB_ENV"
 
-        # 2. Make cintent_v3 importable via PYTHONPATH (no pip install required)
-        echo "PYTHONPATH=${{ github.action_path }}/src:${PYTHONPATH:-}" >> "$GITHUB_ENV"
+        # 2. Try pip install (registers pytest11 entry point — works on Python >= 3.10)
+        #    If it succeeds, the entry point auto-loads the plugin — do NOT also set
+        #    PYTEST_ADDOPTS or the plugin loads twice and sys.setprofile conflicts.
+        if pip install "${{ github.action_path }}" --quiet 2>&1; then
+          echo "[cintent_v3] Installed. Plugin will auto-load via entry point."
+        else
+          # pip install failed (Python < 3.10). Add src to PYTHONPATH so auto_plugin.py
+          # is importable, then load it explicitly. Tracing will be gracefully skipped.
+          echo "PYTHONPATH=${{ github.action_path }}/src:${PYTHONPATH:-}" >> "$GITHUB_ENV"
+          echo "PYTEST_ADDOPTS=${PYTEST_ADDOPTS:-} -p cintent_v3.auto_plugin" >> "$GITHUB_ENV"
+          echo "[cintent_v3] pip install failed (Python < 3.10). Tracing will be skipped."
 
-        # 3. Tell pytest to auto-load the plugin
-        echo "PYTEST_ADDOPTS=${PYTEST_ADDOPTS:-} -p cintent_v3.auto_plugin" >> "$GITHUB_ENV"
-
-        # 4. Try pip install (may fail on Python < 3.10 — OK, PYTHONPATH handles it)
-        pip install "${{ github.action_path }}" 2>/dev/null \
-          || echo "[cintent_v3] pip install skipped — using PYTHONPATH fallback"
-
-        echo "[cintent_v3] Ready. Logs will be written to: $CINTENT_LOGS"
+          # Write placeholder metadata now so upload-artifact always finds something
+          python - << PYEOF
+import sys, os, json, platform, time
+output_dir = "$CINTENT_LOGS"
+os.makedirs(output_dir, exist_ok=True)
+meta = {
+    "tool": "cintent_v3",
+    "skipped": True,
+    "reason": "Python {}.{} < 3.10 — tracing not supported".format(*sys.version_info[:2]),
+    "python_version": sys.version,
+    "platform": sys.platform,
+    "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+}
+for k in ["GITHUB_REPOSITORY","GITHUB_SHA","GITHUB_REF","GITHUB_RUN_ID","GITHUB_JOB","GITHUB_WORKFLOW"]:
+    v = os.environ.get(k)
+    if v:
+        meta[k.lower()] = v
+with open(os.path.join(output_dir, "cintent_v3_metadata.json"), "w") as f:
+    json.dump(meta, f, indent=2)
+print("[cintent_v3] Wrote skip metadata for Python {}.{}".format(*sys.version_info[:2]))
+PYEOF
+        fi
