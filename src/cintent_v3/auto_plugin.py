@@ -87,10 +87,23 @@ def pytest_sessionfinish(session, exitstatus):
     if os.environ.get("GITHUB_ACTIONS") == "true":
         metadata["ci_system"] = "github_actions"
         for env_key in ["GITHUB_REPOSITORY", "GITHUB_SHA", "GITHUB_REF",
-                        "GITHUB_RUN_ID", "GITHUB_JOB", "GITHUB_WORKFLOW"]:
+                        "GITHUB_RUN_ID", "GITHUB_JOB", "GITHUB_WORKFLOW",
+                        "GITHUB_RUN_NUMBER", "GITHUB_RUN_ATTEMPT",
+                        "GITHUB_WORKFLOW_REF", "GITHUB_REF_NAME"]:
             val = os.environ.get(env_key)
             if val:
                 metadata[env_key.lower()] = val
+
+    # Include matrix context and step ID from bash wrapper (setup-cintent compat)
+    matrix_ctx = os.environ.get("CINTENT_MATRIX", "")
+    if matrix_ctx:
+        metadata["matrix"] = matrix_ctx
+    step_id = os.environ.get("CINTENT_STEP_ID", "")
+    if step_id:
+        metadata["step_id"] = step_id
+    nonblocking = os.environ.get("CINTENT_NONBLOCKING", "")
+    if nonblocking:
+        metadata["nonblocking"] = nonblocking
 
     meta_path = os.path.join(output_dir, "cintent_v3_metadata.json")
     with open(meta_path, "w", encoding="utf-8") as f:

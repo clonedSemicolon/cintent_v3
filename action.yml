@@ -1,28 +1,146 @@
-name: Setup cintent_v3
-description: Deterministic call graph tracer for CI
-
+name: "Setup cintent_v3"
+description: "Set up your GitHub Actions job for cintent_v3 deterministic call graph tracing."
+author: "Avishak"
+branding:
+  icon: "activity"
+  color: "blue"
 inputs:
   nonblocking:
-    description: Ignored (kept for compatibility with setup-cintent)
+    description: "Do not pause the python process when collecting samples"
+    required: false
     default: "false"
-
 runs:
-  using: composite
+  using: "composite"
   steps:
-    - name: Setup cintent_v3
+    - name: Set Environmental Variables
+      if: ${{ runner.os == 'Linux' }}
       shell: bash
       run: |
         CINTENT_ARTIFACT_NAME="$(date +%s%N)-cintent_v3_logs"
-        CINTENT_LOGS="${{ github.workspace }}/cintent_v3_logs"
-        mkdir -p "$CINTENT_LOGS"
-        echo "CINTENT_ARTIFACT_NAME=$CINTENT_ARTIFACT_NAME" >> "$GITHUB_ENV"
-        echo "CINTENT_LOGS=$CINTENT_LOGS" >> "$GITHUB_ENV"
-        echo "CINTENT_V3_ENABLED=1" >> "$GITHUB_ENV"
-        echo "CINTENT_V3_OUTPUT=$CINTENT_LOGS" >> "$GITHUB_ENV"
-        echo "CINTENT_V3_PROJECT_ROOT=${{ github.workspace }}" >> "$GITHUB_ENV"
+        echo "CINTENT_ARTIFACT_NAME=$CINTENT_ARTIFACT_NAME" >> $GITHUB_ENV
+
+        CINTENT_BASH=/home/runner/cintent_v3/bin/bash
+        echo "CINTENT_BASH=$CINTENT_BASH" >> $GITHUB_ENV
+
+        CINTENT_BIN=/home/runner/cintent_v3/bin
+        echo "CINTENT_BIN=$CINTENT_BIN" >> $GITHUB_ENV
+        mkdir -p $CINTENT_BIN
+
+        CINTENT_LOGS=/home/runner/cintent_v3/log
+        echo "CINTENT_LOGS=$CINTENT_LOGS" >> $GITHUB_ENV
+        mkdir -p $CINTENT_LOGS
+
+        CINTENT_NONBLOCKING=${{ inputs.nonblocking }}
+        echo "CINTENT_NONBLOCKING=$CINTENT_NONBLOCKING" >> $GITHUB_ENV
+
+        CINTENT_STEP_ID=0
+        echo "CINTENT_STEP_ID=$CINTENT_STEP_ID" >> $GITHUB_ENV
+
+        CINTENT_V3_ENABLED=1
+        echo "CINTENT_V3_ENABLED=$CINTENT_V3_ENABLED" >> $GITHUB_ENV
+
+        CINTENT_V3_OUTPUT=/home/runner/cintent_v3/log
+        echo "CINTENT_V3_OUTPUT=$CINTENT_V3_OUTPUT" >> $GITHUB_ENV
+
+        CINTENT_V3_PROJECT_ROOT=${{ github.workspace }}
+        echo "CINTENT_V3_PROJECT_ROOT=$CINTENT_V3_PROJECT_ROOT" >> $GITHUB_ENV
+
+    - name: Install cintent_v3
+      if: ${{ runner.os == 'Linux' }}
+      shell: bash
+      run: |
         if pip install "${{ github.action_path }}" --quiet 2>/dev/null; then
-          echo "[cintent_v3] Installed via pip. Plugin auto-loads via pytest11."
+          echo "[cintent_v3] Installed. Pytest plugin auto-loads via pytest11 entry point."
         else
-          echo "[cintent_v3] pip install skipped. Writing skip metadata."
-          echo "{\"tool\":\"cintent_v3\",\"skipped\":true}" > "$CINTENT_LOGS/cintent_v3_metadata.json"
+          echo "[cintent_v3] pip install skipped (requires Python >= 3.10)."
+          echo '{"tool":"cintent_v3","skipped":true,"reason":"pip_install_failed"}' > ${{ env.CINTENT_LOGS }}/cintent_v3_metadata.json
         fi
+
+    - name: Write Bash Wrappers
+      if: ${{ runner.os == 'Linux' }}
+      shell: bash
+      run: |
+        # Save the current matrix configurations
+        echo "${{ toJson(matrix) }}" > ${{ env.CINTENT_LOGS }}/matrix_context.json
+        CINTENT_MATRIX=$(cat ${{ env.CINTENT_LOGS }}/matrix_context.json | tr -s '\n' ' ')
+        echo "CINTENT_MATRIX=$CINTENT_MATRIX" >> $GITHUB_ENV
+
+        # Write the bash wrapper
+        cat << 'WRAPPER_EOF' > ${{ env.CINTENT_BASH }}
+        #!/bin/bash
+        if [[ -z "${CINTENT_IS_TRACING_BASH}" ]]; then
+          # Set tracer indicator
+          export CINTENT_IS_TRACING_BASH=true
+          echo "CINTENT_IS_TRACING_BASH=$CINTENT_IS_TRACING_BASH" >> $GITHUB_ENV
+
+          # Increment the step id
+          CINTENT_STEP_ID=$((CINTENT_STEP_ID+1))
+          echo "CINTENT_STEP_ID=$CINTENT_STEP_ID" >> "$GITHUB_ENV"
+
+          # Define the log path
+          timestamp=$(date +%s%N)
+          metadata_log=$CINTENT_LOGS/$timestamp.$CINTENT_STEP_ID.metadata.txt
+
+          # Create the metadata log
+          echo -en \
+          "repository = $GITHUB_REPOSITORY\n"\
+          "branch = $GITHUB_REF_NAME\n"\
+          "commit = $GITHUB_SHA\n"\
+          "workflow = ${GITHUB_WORKFLOW_REF%@*}\n"\
+          "run_number = $GITHUB_RUN_NUMBER\n"\
+          "run_attempt = $GITHUB_RUN_ATTEMPT\n"\
+          "workspace = $GITHUB_WORKSPACE\n"\
+          "job_id = $GITHUB_JOB\n"\
+          "matrix = $CINTENT_MATRIX\n"\
+          "step_id = $CINTENT_STEP_ID\n"\
+          > "$metadata_log"
+          sed -i 's/^[ ]*//' "$metadata_log"
+
+          # (Re-)Apply the wrapper(s)
+          export PATH="${{ env.CINTENT_BIN }}:$PATH"
+          echo ${{ env.CINTENT_BIN }} >> $GITHUB_PATH
+
+          # Start the bash script
+          echo "start_time = $(date +%s)" >> $metadata_log
+          /bin/bash "$@"
+          echo "end_time = $(date +%s)" >> $metadata_log
+
+          # (Re-)Apply the wrapper(s)
+          export PATH="${{ env.CINTENT_BIN }}:$PATH"
+          echo ${{ env.CINTENT_BIN }} >> $GITHUB_PATH
+
+          # Unset tracer indicator
+          unset CINTENT_IS_TRACING_BASH
+          echo "CINTENT_IS_TRACING_BASH=" >> $GITHUB_ENV
+        else
+          # (Re-)Apply the wrapper(s)
+          export PATH="${{ env.CINTENT_BIN }}:$PATH"
+          echo ${{ env.CINTENT_BIN }} >> $GITHUB_PATH
+
+          # Start the bash script
+          /bin/bash "$@"
+
+          # (Re-)Apply the wrapper(s)
+          export PATH="${{ env.CINTENT_BIN }}:$PATH"
+          echo ${{ env.CINTENT_BIN }} >> $GITHUB_PATH
+        fi
+        WRAPPER_EOF
+        chmod +x ${{ env.CINTENT_BASH }}
+
+    - name: Apply Wrappers
+      if: ${{ runner.os == 'Linux' }}
+      shell: bash
+      run: |
+        export PATH="${{ env.CINTENT_BIN }}:$PATH"
+        echo ${{ env.CINTENT_BIN }} >> $GITHUB_PATH
+
+    - name: Set Fallback Variables
+      if: ${{ runner.os != 'Linux' }}
+      shell: bash
+      run: |
+        CINTENT_ARTIFACT_NAME="$(date +%s)-cintent_v3_logs"
+        echo "CINTENT_ARTIFACT_NAME=$CINTENT_ARTIFACT_NAME" >> $GITHUB_ENV
+        CINTENT_LOGS="${{ github.workspace }}/cintent_v3_logs"
+        echo "CINTENT_LOGS=$CINTENT_LOGS" >> $GITHUB_ENV
+        mkdir -p "$CINTENT_LOGS"
+        echo '{"tool":"cintent_v3","skipped":true,"reason":"non_linux"}' > "$CINTENT_LOGS/cintent_v3_metadata.json"
