@@ -2,8 +2,6 @@
 
 This module is loaded via pytest11 entry point (registered in pyproject.toml).
 Tracing activates only when CINTENT_V3_ENABLED=1.
-
-Gracefully skips on Python < 3.10 (cintent_v3 core requires 3.10+).
 """
 
 import os
@@ -18,18 +16,10 @@ def _is_enabled():
     return os.environ.get("CINTENT_V3_ENABLED", "0") == "1"
 
 
-def _is_supported():
-    return sys.version_info >= (3, 10)
-
-
 def pytest_configure(config):
     """Start tracing at the earliest pytest hook if enabled."""
     global _tracer, _start_time
     if not _is_enabled():
-        print("[cintent_v3] Plugin loaded but CINTENT_V3_ENABLED != 1, skipping.")
-        return
-    if not _is_supported():
-        print(f"[cintent_v3] Skipping: requires Python >= 3.10 (current: {sys.version})")
         return
 
     try:
